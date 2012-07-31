@@ -114,8 +114,11 @@ module CASClient
     def validate_service_ticket(st)
       uri = URI.parse(validate_url)
       h = uri.query ? query_to_hash(uri.query) : {}
-      h['service'] = st.service
-      h['ticket'] = st.ticket
+      h['cassvc'] = "IU"  
+      h['casurl'] = st.service
+      h['casticket'] = st.ticket
+#      h['service'] = st.service
+#      h['ticket'] = st.ticket
       h['renew'] = "1" if st.renew
       h['pgtUrl'] = proxy_callback_url if proxy_callback_url
       uri.query = hash_to_query(h)

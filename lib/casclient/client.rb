@@ -7,6 +7,7 @@ module CASClient
     attr_reader :proxy_host, :proxy_port
     attr_writer :login_url, :validate_url, :proxy_url, :logout_url, :service_url
     attr_accessor :proxy_callback_url, :proxy_retrieval_url
+    attr_reader :fake_user, :fake_extra_attributes
 
     def initialize(conf = nil)
       configure(conf) if conf
@@ -55,6 +56,17 @@ module CASClient
       @log.set_real_logger(conf[:logger]) if conf[:logger]
       @ticket_store.log = @log
       @conf_options = conf
+    end
+
+    # used to allow faking for testing
+    # with cucumber and other tools.
+    # use like
+    # casclient.fake("homer")
+    # you can also fake extra attributes by including a second parameter
+    # casclient.fake("homer", {:roles => ['dad', 'husband']})
+    def fake(username, extra_attributes = nil)
+      @fake_user = username
+      @fake_extra_attributes = extra_attributes
     end
 
     def cas_destination_logout_param_name
@@ -112,6 +124,13 @@ module CASClient
     end
 
     def validate_service_ticket(st)
+      if @fake_user
+        st.user = @fake_user
+        st.extra_attributes = @fake_attributes
+        st.sucess = true
+        return st
+      end
+
       uri = URI.parse(validate_url)
       h = uri.query ? query_to_hash(uri.query) : {}
       h['cassvc'] = "IU"  

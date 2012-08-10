@@ -114,7 +114,6 @@ module CASClient
     def validate_service_ticket(st)
       uri = URI.parse(validate_url)
       h = uri.query ? query_to_hash(uri.query) : {}
-      h['cassvc'] = "IU"  
       h['casurl'] = st.service
       h['casticket'] = st.ticket
 #      h['service'] = st.service
@@ -226,7 +225,7 @@ module CASClient
 
     def add_service_to_login_url(service_url)
       uri = URI.parse(login_url)
-      uri.query = (uri.query ? uri.query + "&" : "") + "service=#{CGI.escape(service_url)}"
+      uri.query = (uri.query ? uri.query + "&" : "") + "casurl=#{CGI.escape(service_url)}"
       uri.to_s
     end
 
